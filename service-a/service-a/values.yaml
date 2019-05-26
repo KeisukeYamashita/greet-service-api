@@ -4,8 +4,9 @@ refs:
   appPort: &appPort 5050
 
 image:
-  repository: gcr.io/devdojo-2019-april-1/service-a
-  tag: 0.5.0
+  project: greeding-service
+  name: service-a
+  tag: stable
   pullPolicy: Always
   port: *appPort
 
