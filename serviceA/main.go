@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -17,34 +17,61 @@ func main() {
 			return
 		}
 
-		resp, err := http.Get("http://localhost:5100/api/serviceB")
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			w.Write([]byte("bad http method"))
+			return
+		}
+
+		decoder := json.NewDecoder(r.Body)
+
+		var reqBody Message
+		err := decoder.Decode(&reqBody)
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("cannot decode body"))
+			return
+		}
+
+		jsonBody, err := json.Marshal(reqBody)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("cannot get message "))
+			return
+		}
+
+		servicebHost := os.Getenv("SERVICE_B_HOST")
+
+		if len(servicebHost) == 0 {
+			servicebHost = "localhost"
+		}
+
+		resp, err := http.Post("http://"+servicebHost+":5100/api/serviceB", "application/json", bytes.NewBuffer(jsonBody))
+
+		if err != nil {
+			http.Error(w, "Error while accessing Service B "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		defer resp.Body.Close()
 
-		body, err := ioutil.ReadAll(resp.Body)
+		msg := &Message{}
 
-		if err != nil {
-			http.Error(w, "error while ReadAll", http.StatusInternalServerError)
+		if err = json.NewDecoder(resp.Body).Decode(&msg); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		message := &Message{}
-
-		err = json.Unmarshal(body, message)
-
 		if err != nil {
-			http.Error(w, "error while unmarshaling", http.StatusInternalServerError)
+			http.Error(w, "error while unmarshaling, err: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		res := &Response{
 			Env:     env,
-			Message: message.Message,
+			Message: msg.Message,
 		}
 
 		response, err := json.Marshal(res)

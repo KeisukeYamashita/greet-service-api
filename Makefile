@@ -1,7 +1,7 @@
 projectName:=$(shell gcloud config get-value project)
 clusterName:=greeting-cluster
 zone:=asia-northeast1-c
-services:=serviceA serviceB
+services:=service-a service-b
 
 .PHONY: init
 init:
@@ -11,7 +11,7 @@ init:
 .PHONY: build
 build:
 	@for service in $(services); do \
-		docker build ./$$service -t $$service;\ 
+		docker build --file ./$$service/Dockefile -t $$service;\ 
 		docker tag $$service gcr.io/$$projectName/$$service ;\
 		docker push gcr.io/$$projectName/$$service;\
 	done

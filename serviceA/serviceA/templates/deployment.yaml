@@ -23,6 +23,12 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.configMap.name }}
+          env:
+            - name: SERVICE_B_HOST
+              value: service-b
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -36,13 +42,4 @@ spec:
             httpGet:
               path: /healthz
               port: http
-          volumeMounts:
-            - name: mysecret
-              mountPath: /.env
-              subPath: .env
-              readOnly: true
-      volumes:
-      - name: mysecret
-        secret:
-          secretName: mysecret
             

@@ -1,18 +1,18 @@
 replicaCount: 1
 
 refs:
-  appPort: &appPort 5100
+  appPort: &appPort 5050
 
 image:
-  repository: gcr.io/devdojo-2019-april-1/service-b
+  repository: gcr.io/devdojo-2019-april-1/service-a
   tag: 0.5.0
   pullPolicy: Always
   port: *appPort
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   targetPort: *appPort
   port: *appPort
 
-secret:
-  name: mysecret
+configMap:
+  name: my-config-map

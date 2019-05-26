@@ -18,8 +18,34 @@ func main() {
 	}
 
 	http.HandleFunc("/api/serviceB", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			w.Write([]byte("bad http method"))
+			return
+		}
+
+		decoder := json.NewDecoder(r.Body)
+
+		var msg Message
+		err := decoder.Decode(&msg)
+
+		var resMsg string
+
+		switch msg.Message {
+		case "Hi":
+			resMsg = "Hi"
+		case "Bye":
+			resMsg = "Bye"
+		}
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
 		res := &Message{
-			Message: os.Getenv("SECRET_MESSAGE_PREFIX") + " " + "hoge",
+			Message: os.Getenv("SECRET_MESSAGE_PREFIX") + " " + resMsg,
 		}
 
 		response, err := json.Marshal(res)
