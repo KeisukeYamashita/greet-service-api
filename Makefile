@@ -11,9 +11,9 @@ init:
 .PHONY: build
 build:
 	@for service in $(services); do \
-		docker build --file ./$$service/Dockefile -t $$service;\ 
-		docker tag $$service gcr.io/$$projectName/$$service ;\
-		docker push gcr.io/$$projectName/$$service;\
+		docker build --file ./$$service/Dockefile -t $$service:stable;\ 
+		docker tag $$service:stable gcr.io/$$projectName/$$service:stable ;\
+		docker push gcr.io/$$projectName/$$service:stable;\
 	done
 
 .PHONY: deploy
