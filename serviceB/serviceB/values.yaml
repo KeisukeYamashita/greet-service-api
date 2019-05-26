@@ -1,0 +1,15 @@
+replicaCount: 1
+
+refs:
+  appPort: &appPort 5050
+
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+  port: *appPort
+
+service:
+  type: ClusterIP
+  targetPort: *appPort
+  port: *appPort
