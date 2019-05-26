@@ -11,7 +11,7 @@ $ docker build . -t service-a
 You will have to pass enviroment variable `ENV`.
 
 ```
-$ docker run service-a
+$ docker run -e ENV=test service-a
 ```
 
 ## Author 
