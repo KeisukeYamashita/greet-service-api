@@ -20,5 +20,6 @@ build:
 .PHONY: deploy
 deploy:
 	@for service in $(services); do \
-		helm install --name=$$service ./$$service/$$service --set image.project=$(projectName)\
+		helm install --name=$$service ./$$service/$$service --set image.project=$(projectName);\
 	done
+
