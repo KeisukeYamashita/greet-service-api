@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -17,9 +18,14 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	logger, _ := zap.NewProduction()
+
 	http.HandleFunc("/api/serviceB", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("handling request")
+
 		if r.Method != http.MethodPost {
 			w.WriteHeader(http.StatusMethodNotAllowed)
+			logger.Error(fmt.Sprintf("bat http request method:%s", r.Method))
 			w.Write([]byte("bad http method"))
 			return
 		}
@@ -52,9 +58,11 @@ func main() {
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			logger.Error(fmt.Sprintf("failed to marshal responce error:%v", err))
 			return
 		}
 
+		logger.Info("responding to service A")
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	})

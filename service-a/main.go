@@ -6,10 +6,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	"go.uber.org/zap"
 )
 
 func main() {
+	logger, _ := zap.NewProduction()
+
 	http.HandleFunc("/api/serviceA", func(w http.ResponseWriter, r *http.Request) {
+		logger.Info("handling request")
 		env := os.Getenv("ENV")
 
 		if env == "" {
@@ -19,6 +24,7 @@ func main() {
 
 		if r.Method != http.MethodPost {
 			w.WriteHeader(http.StatusMethodNotAllowed)
+			logger.Error(fmt.Sprintf("bad http request method:%s", r.Method))
 			w.Write([]byte("bad http method"))
 			return
 		}
@@ -30,6 +36,7 @@ func main() {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			logger.Error(fmt.Sprintf("bad http request body error:%v", err))
 			w.Write([]byte("cannot decode body"))
 			return
 		}
@@ -38,6 +45,7 @@ func main() {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			logger.Error(fmt.Sprintf("bad response from service B error:%v", err))
 			w.Write([]byte("cannot get message "))
 			return
 		}
@@ -81,6 +89,7 @@ func main() {
 			return
 		}
 
+		logger.Info("got message form service B")
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(response)
 	})
