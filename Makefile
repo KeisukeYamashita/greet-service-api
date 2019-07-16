@@ -5,7 +5,7 @@ services:=service-a service-b
 
 .PHONY: init
 init:
-	gcloud container clusters create $(clusterName) --zone=$(zone) --num-nodes=1 --preemptible
+	gcloud container clusters create $(clusterName) --zone=$(zone) --num-nodes=5 --preemptible
 	gcloud container clusters get-credentials $(clusterName) --zone=$(zone)
 	helm init
 
@@ -22,4 +22,3 @@ deploy:
 	@for service in $(services); do \
 		helm3 install $$service ./$$service/$$service --set image.project=$(projectName);\
 	done
-
